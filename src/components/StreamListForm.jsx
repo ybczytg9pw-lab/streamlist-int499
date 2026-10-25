@@ -41,7 +41,7 @@ export default function StreamListForm({ onSubmitTitle }) {
           <span className="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
         </button>
       </div>
-      <p className="form-feedback" role="status" aria-live="polite">{confirmation || 'Enter a title and press Add title to see it in your developer console.'}</p>
+      <p className="form-feedback" role="status" aria-live="polite">{confirmation || 'Enter a movie or TV show title and click Add Title to save it to your watchlist.'}</p>
     </form>
   );
 }

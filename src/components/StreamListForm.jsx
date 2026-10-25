@@ -13,7 +13,7 @@ export default function StreamListForm({ onSubmitTitle }) {
     }
 
     onSubmitTitle(submittedTitle);
-    setConfirmation(`“${submittedTitle}” was sent to the browser console.`);
+    setConfirmation(`"${submittedTitle}" was added to your StreamList!`);
     setTitle('');
   }
 

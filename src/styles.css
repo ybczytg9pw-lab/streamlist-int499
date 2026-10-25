@@ -119,3 +119,73 @@ kbd { font-family: inherit; background: #292e48; border: 1px solid #454c6a; bord
   .placeholder-page { margin-top: 44px; padding: 42px 23px; }
   .site-footer { flex-direction: column; align-items: center; padding-top: 35px; }
 }
+/* Week 2 - Watched Movie Styling */
+
+.watched-title {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.watchlist-action {
+  background-color: #7c73f6;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 12px;
+  font-weight: 600;
+}
+
+.watchlist-action:hover {
+  background-color: #6259dc;
+}
+
+.watchlist-action .material-symbols-rounded {
+  font-size: 18px;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+/* Week 2 - Delete Button Styling */
+
+.watchlist-action.delete-action {
+  background-color: #b33a55;
+  color: white;
+}
+
+.watchlist-action.delete-action:hover {
+  background-color: #8f2a45;
+}
+/* Week 2 - Edit Button */
+
+.watchlist-action.edit-action {
+  background-color: #2563eb;
+  color: white;
+}
+
+.watchlist-action.edit-action:hover {
+  background-color: #1d4ed8;
+}
+
+/* Save Button */
+
+.watchlist-action.save-action {
+  background-color: #16a34a;
+  color: white;
+}
+
+.watchlist-action.save-action:hover {
+  background-color: #15803d;
+}
+
+/* Edit Input Field */
+
+.watchlist-edit-input {
+  padding: 10px;
+  border: 2px solid #8b80ff;
+  border-radius: 8px;
+  background-color: #0f172a;
+  color: white;
+  font-size: 16px;
+  max-width: 100%;
+}

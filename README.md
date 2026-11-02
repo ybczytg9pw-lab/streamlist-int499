@@ -94,3 +94,56 @@ The business overview describes a broader movie-streaming service, subscriptions
 - Vite documentation: https://vite.dev/guide/
 - Google Material Symbols: https://fonts.google.com/icons
 
+- ## Week 3 - TMDB API Integration and LocalStorage
+
+The StreamList application has been updated to include
+movie searching through The Movie Database (TMDB) API.
+
+### New Features
+
+- Search for movies using the TMDB API.
+- Display movie posters, descriptions, ratings, and release dates.
+- Add movies directly to the StreamList watchlist.
+- Display confirmation messages when movies are added.
+- Save watchlist information using LocalStorage.
+- Edit and delete saved movie titles.
+- Mark movies as watched or not watched.
+- Maintain saved information after refreshing the browser.
+
+### Running the Application
+
+1. Download or clone the repository.
+2. Open the project folder in Visual Studio Code.
+3. Run npm install.
+4. Create a file named .env.local in the project root.
+5. Add the following configuration:
+
+VITE_TMDB_API_KEY=YOUR_TMDB_API_KEY
+
+6. Replace YOUR_TMDB_API_KEY with your own TMDB API key.
+7. Run npm run dev.
+8. Open the local URL displayed in the terminal.
+
+### Security
+
+The .env.local file is excluded from GitHub to avoid
+committing the development API key.
+
+For production deployment, API credentials requiring
+secrecy should be protected through a backend service.
+
+### Technologies Used
+
+- React
+- JavaScript
+- Vite
+- React Router
+- TMDB API
+- LocalStorage
+- CSS
+
+### Project
+
+INT499 - Capstone for Information Technology
+University of Arizona Global Campus
+

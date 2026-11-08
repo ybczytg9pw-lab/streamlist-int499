@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useWatchlist } from "../context/WatchlistContext.jsx";
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
@@ -15,6 +16,7 @@ function getSavedMovies() {
 }
 
 export default function MoviesPage() {
+  const { movies: watchlist, setMovies: setWatchlist } = useWatchlist();
 
   const [search, setSearch] = useState(
     () => localStorage.getItem("movieSearch") || ""
@@ -23,6 +25,7 @@ export default function MoviesPage() {
   const [movies, setMovies] = useState(getSavedMovies);
 
   const [loading, setLoading] = useState(false);
+  const latestRequestId = useRef(0);
 
   const [error, setError] = useState("");
 
@@ -42,122 +45,121 @@ export default function MoviesPage() {
   }, [movies]);
 
   // Search movies using the TMDB API
-  async function searchMovies(event) {
-    event.preventDefault();
+async function searchMovies(event) {
+  event.preventDefault();
 
-    if (!search.trim()) {
-      setError("Please enter a movie title.");
-      return;
-    }
+  const requestId = ++latestRequestId.current;
+  const searchTerm = search.trim();
 
-    if (!API_KEY) {
-      setError("TMDB API key is missing.");
-      return;
-    }
+  setWatchlistMessage("");
 
-    setLoading(true);
-    setError("");
+  if (!searchTerm) {
+    setLoading(false);
+    setError("Please enter a movie title.");
+    return;
+  }
 
-    try {
+  if (!API_KEY) {
+    setLoading(false);
+    setError("TMDB API key is missing.");
+    return;
+  }
 
-      const params = new URLSearchParams({
-        api_key: API_KEY,
-        query: search.trim()
-      });
+  setLoading(true);
+  setError("");
 
-      const response = await fetch(
-        `https://api.themoviedb.org/3/search/movie?${params}`
-      );
+  try {
+    const params = new URLSearchParams({
+      api_key: API_KEY,
+      query: searchTerm
+    });
 
-      if (!response.ok) {
-        throw new Error(
-          `Unable to retrieve movies. Error: ${response.status}`
-        );
+    const response = await fetch(
+      `https://api.themoviedb.org/3/search/movie?${params}`
+    );
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error("Movie search is temporarily unavailable due to an authentication issue.");
       }
 
-      const data = await response.json();
+      throw new Error(`Unable to retrieve movies. Error: ${response.status}`);
+    }
 
-      setMovies(data.results || []);
+    const data = await response.json();
 
-    } catch (error) {
+    if (requestId !== latestRequestId.current) return;
 
+    setMovies(Array.isArray(data.results) ? data.results : []);
+
+  } catch (error) {
+    if (requestId !== latestRequestId.current) return;
+
+    if (error instanceof TypeError) {
+      setError("Cannot reach the movie service. Please check your internet connection.");
+    } else {
       setError(error.message);
+    }
 
-    } finally {
-
+  } finally {
+    if (requestId === latestRequestId.current) {
       setLoading(false);
-
     }
   }
+}
 // Add a TMDB movie to the existing StreamList watchlist
 function addToWatchlist(movie) {
 
-  try {
+  // Validate the movie before adding it
+  const movieTitle =
+    typeof movie?.title === "string"
+      ? movie.title.trim()
+      : "";
 
-    // Get movies already saved in StreamList
-    const savedMovies = localStorage.getItem('streamlist-movies');
-
-    const parsedMovies = savedMovies
-      ? JSON.parse(savedMovies)
-      : [];
-
-    const currentMovies = Array.isArray(parsedMovies)
-      ? parsedMovies
-      : [];
-
-    // Check whether the movie is already saved
-    const alreadyExists = currentMovies.some(
-      (item) =>
-        item.tmdbId === movie.id ||
-        item.title?.trim().toLowerCase() ===
-          movie.title.trim().toLowerCase()
-    );
-
-    if (alreadyExists) {
-      setWatchlistMessage(
-        `${movie.title} is already on your watchlist.`
-      );
-      return;
-    }
-
-    // Create a movie using the existing StreamList format
-    const newMovie = {
-      id: crypto.randomUUID(),
-      title: movie.title,
-      completed: false,
-      tmdbId: movie.id
-    };
-
-    // Add the movie to the existing watchlist
-    const updatedMovies = [
-      ...currentMovies,
-      newMovie
-    ];
-
-    // Save the updated watchlist
-    localStorage.setItem(
-      'streamlist-movies',
-      JSON.stringify(updatedMovies)
-    );
-
-    // Display confirmation
+  if (!movieTitle) {
     setWatchlistMessage(
-      `${movie.title} added to your watchlist!`
+      "This movie does not have a valid title."
     );
-
-  } catch (error) {
-
-    console.error('Error saving movie:', error);
-
-    setWatchlistMessage(
-      'Unable to save this movie. Please try again.'
-    );
-
+    return;
   }
 
-}
-  return (
+  // Check whether the movie already exists
+  const alreadyExists = watchlist.some(
+    (item) =>
+      (movie.id != null && item.tmdbId === movie.id) ||
+      item.title?.trim().toLowerCase() ===
+        movieTitle.toLowerCase()
+  );
 
+  if (alreadyExists) {
+    setWatchlistMessage(
+      `${movieTitle} is already on your watchlist.`
+    );
+    return;
+  }
+
+  // Create the movie using StreamList's structure
+  const newMovie = {
+    id: crypto.randomUUID?.() ??
+      `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    title: movieTitle,
+    completed: false,
+    tmdbId: movie.id
+  };
+
+  // Update shared React state
+  setWatchlist((previousMovies) => [
+    ...previousMovies,
+    newMovie
+  ]);
+
+  // Show confirmation
+  setWatchlistMessage(
+    `${movieTitle} added to your watchlist!`
+  );
+}
+
+return (
     <div style={{ padding: "30px" }}>
 
       <h1>StreamList Movie Search</h1>
@@ -247,12 +249,15 @@ function addToWatchlist(movie) {
 
               <img
                 src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
-                alt={`${movie.title} poster`}
-                style={{
-                  width: "150px",
-                  borderRadius: "8px"
-                }}
-              />
+  alt={`${movie.title || "Movie"} poster`}
+  loading="lazy"
+  width="150"
+  style={{
+    width: "150px",
+    height: "auto",
+    borderRadius: "8px"
+  }}
+/>
 
             )}
 

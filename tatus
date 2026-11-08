@@ -1,0 +1,28 @@
+[1mdiff --cc src/pages/MoviesPage.jsx[m
+[1mindex 92e9ed3,e510662..0000000[m
+[1m--- a/src/pages/MoviesPage.jsx[m
+[1m+++ b/src/pages/MoviesPage.jsx[m
+[36m@@@ -246,13 -248,16 +248,16 @@@[m [mreturn [m
+              {movie.poster_path && ([m
+  [m
+                <img[m
+[31m -  src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}[m
+[32m +                src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}[m
+[31m-                 alt={`${movie.title} poster`}[m
+[31m-                 style={{[m
+[31m-                   width: "150px",[m
+[31m-                   borderRadius: "8px"[m
+[31m-                 }}[m
+[31m-               />[m
+[32m+   alt={`${movie.title || "Movie"} poster`}[m
+[32m+   loading="lazy"[m
+[32m+   width="150"[m
+[32m+   style={{[m
+[32m+     width: "150px",[m
+[32m+     height: "auto",[m
+[32m+     borderRadius: "8px"[m
+[32m+   }}[m
+[32m+ />[m
+  [m
+              )}[m
+  [m
